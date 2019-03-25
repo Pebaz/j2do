@@ -34,7 +34,4 @@ simple as possible.
 (setv _CLRreset colorama.Style.RESET_ALL)
 
 ;; Control `from` imports
-(setv __all__ [])
-(for [i (dir)] [
-	(if (i.startswith "_CLR")
-		(__all__.append i))])
+(setv __all__ (lfor i (dir) :if (i.startswith "_CLR") i))

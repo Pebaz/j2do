@@ -12,28 +12,29 @@ pip install git+https://github.com/Pebaz/j2do.git
 
 ## Usage
 
-Process a given template with command line arguments
+Process a given template with command line arguments:
 
 ```bash
-j2do scuttle.j2 name="Pebaz" badge_number=24 something-else=abc123
+j2do scuttle.j2 name="'Pebaz'" badge_number=24 something-else=abc123
 ```
 
-Process a given template with YAML input
+Process a given template with YAML input:
 
 ```sh
-
+j2do scuttle.j2 --yml answers.yml
 ```
 
-Process a given template with JSON input
+Process a given template with JSON input:
 
 ```sh
-
+j2do scuttle.j2 --json answers.json
 ```
 
-Process a given template with Environment Variable input
+Process a given template with Environment Variable input:
 
 ```sh
-
+set j2.name="'Pebaz'"
+j2do scuttle.j2 --env
 ```
 
 Process a given template with STDIN input
@@ -72,3 +73,19 @@ Features
    ```
 
 8. Name comes from Linux: sudo
+
+## Notes
+
+* When passing in parameters from the command line, values should be valid Python values.  Strings should be double-quoted because the terminal will strip them.
+
+  ```bash
+  # Work
+  j2do scuttle.j2 name="'python understands this'"
+  
+  # Doesn't Work
+  j2do scuttle.j2 name="but not this"
+  
+  # Example list
+  j2do scuttle.j2 items="[1, 2, 'this is a string']"
+  ```
+
