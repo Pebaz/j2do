@@ -1,6 +1,6 @@
 # J2DO
 
-**EDUCATIONAL PROJECT FOR LEARNING THE HY LANGUAGE, USE [J2CLI](https://github.com/kolypto/j2cli) INSTEAD**
+**Educational project for learning the [Hy](http://docs.hylang.org/en/stable/) language, use [J2CLI](https://github.com/kolypto/j2cli) instead.**
 
 *Description of project*
 
