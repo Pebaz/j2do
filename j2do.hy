@@ -1,5 +1,20 @@
 "
-Docopt arguments go here.
+j2do - Use Jinja2 Templates from the Command Line!
+
+Usage:
+    {0} <template> [--out=<outfile>] [--include=<dir>]... [<key-value-pairs>...]
+    {0} <template> [--out=<outfile>] [--include=<dir>]... (--json | --yml | --env) [-]
+    {0} <template> [--out=<outfile>] [--include=<dir>]... (--json | --yml | --env) <answer-file>
+    {0} -t <template-string> [--out=<outfile>] [<key-value-pairs>...]
+    {0} -t <template-string> [--out=<outfile>] (--json | --yml | --env) [-]
+    {0} -t <template-string> [--out=<outfile>] (--json | --yml | --env) <answer-file>
+
+Options:
+    -h --help  Show this screen.
+    -t  Use inline template as string.
+    --out=<outfile>
+    --include=<dir>
+
 
 [ ] Docopt Parser
 [ ] Finalize `name=value` syntax (looping?)
@@ -8,12 +23,18 @@ Docopt arguments go here.
 [ ] Built-in color variables (passed to render func)
 "
 
-(import [builtins [eval :as parse-datatype]])  ;; Python object from string
 (import sys)  ;; Command line arguments
+(import [builtins [eval :as parse-datatype]])  ;; Python object from string
 (import jinja2)  ;; Templating engine
-(import docopt)  ;; CLI Framework
+(import [docopt [docopt]])  ;; CLI Framework
 (import [term-colors [*]])  ;; Terminal colors
 (import [term-colors [__all__ :as all-term-colors]])  ;; Color names
+
+
+;; Make sure that the right script/executable name is showing in the docstring
+(if (= __name__ "__main__")
+	(setv __doc__ (__doc__.format (get sys.argv 0)))
+	(setv __doc__ (__doc__.format "j2do.hy")))
 
 
 (defn j2do [template data &optional outfile [include "."]]
@@ -31,6 +52,13 @@ Docopt arguments go here.
 
 
 (defn main [args]
+	"
+	THIS IS SOME TEXT! 😁
+	"
+	(setv cmd-args (docopt __doc__))
+	(print cmd-args)
+	(exit)
+
 	(if (= (len args) 0)
 		(print "j2do - Jinja2 template quick replace command line tool."))
 
