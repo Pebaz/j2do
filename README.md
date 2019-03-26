@@ -105,7 +105,7 @@ out = j2do(
     template="mytemplate.j2",   # Template to load
     data=data,                  # Data to pass to template
     include=["templates"],      # Where to find templates (accepts list)
-	outfile=None                # Return text don't output file (defaults to None)
+    outfile=None                # Return text don't output file (defaults to None)
 )
 
 print(out)
