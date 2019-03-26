@@ -3,14 +3,15 @@ Usage:
 pip install git+https://github.com/Pebaz/j2do.git
 """
 
-from distutils.core import setup
+from distutils.core import setup, find_packages
 
 setup(
 	name='j2do',
 	version='0.1',
 	description='Use Jinja2 templates from the command line!',
 	author='http://github.com/Pebaz',
-	packages=['j2do'],
+	license='GPL-3.0',
+	packages=find_packages(),
 	install_requires=[
 		'jinja2==2.10',
 		'docopt==0.6.2',
