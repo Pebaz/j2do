@@ -27,7 +27,7 @@ setup(
 	},
 	entry_points={
 		'console_scripts' : [
-			'j2do=j2do'
+			'j2do=j2do.__main__:main'
 		]
 	}
 )
