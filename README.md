@@ -19,7 +19,7 @@ Example template file `scuttle.j2`:
 
 ```jinja2
 {% for i in range(times) %}
-	Hello {{ name }}!
+    Hello {{ name }}!
 {% endfor %}
 ```
 
@@ -29,20 +29,20 @@ Render this template with command line arguments:
 j2do scuttle.j2 name="'Pebaz'" times=3
 ```
 
-Render this template with YAML input:
+Render this template with JSON input:
 
 ```json
 {
-	"name" : "Yelbu",
-	"times" : 3
+    "name" : "Yelbu",
+    "times" : 3
 }
 ```
 
 ```sh
-j2do scuttle.j2 --yml answers.yml
+j2do scuttle.j2 --json answers.json
 ```
 
-Render this template with JSON input:
+Render this template with YAML input:
 
 ```yaml
 name: "Nodibu"
@@ -50,7 +50,7 @@ times: 3
 ```
 
 ```sh
-j2do scuttle.j2 --json answers.json
+j2do scuttle.j2 --yml answers.yml
 ```
 
 Render this template with a text file containing key-value pairs:
@@ -84,9 +84,9 @@ Use JQ along with J2DO:
 
 ```json
 {
-	"name" : "Yelbu",
-	"times" : 3,
-	"extra" : "not used"
+    "name" : "Yelbu",
+    "times" : 3,
+    "extra" : "not used"
 }
 ```
 
@@ -102,10 +102,10 @@ from j2do import j2do
 data = {"name" : "'Pebaz'", "times" : 3}
 
 out = j2do(
-    template="mytemplate.j2",	# Template to load
+    template="mytemplate.j2",   # Template to load
     data=data,                  # Data to pass to template
-    include=["templates"],		# Where to find templates (accepts list)
-	outfile=None 				# Return text don't output file (defaults to None)
+    include=["templates"],      # Where to find templates (accepts list)
+	outfile=None                # Return text don't output file (defaults to None)
 )
 
 print(out)
