@@ -30,15 +30,23 @@ Notes:
 [✔] Get template string from CLI
 [✔] Use as library
 [✔] Built-in color variables (passed to render func)
+
+[✔] Remove print
+[✔] Verify use as library
+[✔] Document each function
+[ ] Reference Jinja2 documentation
+[ ] Document included colors
+[ ] Setup script
+[ ] Command script .sh: hy j2do.hy %*
 "
 
 (import sys)  ;; Command line arguments
 (import os)  ;; Environment variables
-(import json)
-(import yaml)
-(import [tempfile [NamedTemporaryFile :as TmpFile]])
-(import [pathlib [Path]])
+(import json)  ;; JSON Parser
+(import [tempfile [NamedTemporaryFile :as TmpFile]])  ;; Temporary files
+(import [pathlib [Path]])  ;; TmpFile deletion after use
 (import [builtins [eval :as parse-datatype]])  ;; Python object from string
+(import yaml)  ;; YAML Parser
 (import jinja2)  ;; Templating engine
 (import [docopt [docopt]])  ;; CLI Framework
 (import [term-colors [*]])  ;; Terminal colors
@@ -50,30 +58,85 @@ Notes:
 	(setv __doc__ (__doc__.format (get sys.argv 0)))
 	(setv __doc__ (__doc__.format "j2do.hy")))
 
+;; Control from imports
+(setv __all__ ["j2do"])
+
 
 (defn j2do [template data &optional outfile [include "."]]
 	"
-	Map a given template with the given names.
+	Use Jinja2 to process a template filename with a set of key-value pairs.
+
+	Template is a filename, not the file's contents. Values within the data
+	variable can be nested like JSON and referenced easily within a template.
+	A list of directory search paths can be provided so that templates can
+	reference each other easily.
 
 	Args:
+		template(str): the path to the template file (`.j2`).
+		data(dict): key-value pairs to map to names within template.
+		outfile(str): the filename that should contain the rendered template.
 		include(list): a list of string paths to folders that have templates.
+
+	Returns:
+		A string containing the rendered template text.
 	"
 	(setv env (jinja2.Environment :loader (jinja2.FileSystemLoader include)))
 	(setv template (env.get-template template))
 	(setv output (template.render (unpack-mapping data)))
 
 	(if outfile
-		(with [file (open outfile)]
+		(with [file (open outfile "w")]
 			(file.write output))
-		(print output)))
+		(return output)))
+
+
+(defn parse-kv [collection]
+	"
+	Takes a list of keys/values separated by `=` and adds them to dictionary.
+
+	Expects this data structure:
+	```
+	[
+		'name=\"'Pebaz'\",
+		'age=24'
+	]
+	```
+	And turns it into this data structure:
+	```
+	{
+		'name' : '\"Pebaz\"',
+		'age' : 24
+	}
+	```
+	Values are parsed by using the `eval` function to obtain a valid Python
+	object. Note that this could be considered a security concern if j2do is
+	being used on a server, etc.
+
+	Args:
+		collection(list): a list of strings containing key-value pairs.
+
+	Returns:
+		A Python dictionary containing the key-value pairs.
+	"
+	(return (dfor kv collection [
+		(get (kv.split "=") 0)
+		(parse-datatype (get (kv.split "=") 1))])))
 
 
 (defn main [args]
 	"
-	THIS IS SOME TEXT! 😁
+	Reads command line parameters from Docopt and passes them to `j2do()`.
+
+	Utilizes the appropriate parser necessary to convert the key-value pairs
+	from different data sources into a dictionary that Jinja2 understands.
+
+	Args:
+		args(list): the command line arguments.
+
+	Returns:
+		An integer return code.
 	"
 	(setv cmd-args (docopt __doc__))
-	(print cmd-args)
 	
 	(if (get cmd-args "<template>")
 		(setv template (get cmd-args "<template>"))
@@ -94,23 +157,16 @@ Notes:
 
 	;; Determine where to get the data
 
-	(if (get cmd-args "-") [
+	(if
+		(get cmd-args "-") [
 			;; Get data from stdin
 			(setv lines (lfor line sys.stdin (line.strip)))
 			(setv text (.join "\n" lines))
 
-			(if (get cmd-args "--json") [
-					(setv data (json.loads text))]
+			(if (get cmd-args "--json") (setv data (json.loads text))
+				(get cmd-args "--yml") (setv data (yaml.load text))
+				(get cmd-args "--kv") (setv data (parse-kv lines)))]
 
-				(get cmd-args "--yml") [
-					(setv data (yaml.load text))]
-
-				(get cmd-args "--kv") [
-					(setv data
-						(dfor kv lines [
-							(get (kv.split "=") 0)
-							(parse-datatype (get (kv.split "=") 1))]))])
-		]
 		(get cmd-args "<answer-file>") [
 			;; Use the answer file (json, yml)
 			(setv lines
@@ -118,34 +174,21 @@ Notes:
 					(i.strip)))
 			(setv text (.join "\n" lines))
 
-			(if (get cmd-args "--json") [
-					(setv data (json.loads text))]
+			(if (get cmd-args "--json") (setv data (json.loads text))
+				(get cmd-args "--yml") (setv data (yaml.load text))
+				(get cmd-args "--kv") (setv data (parse-kv lines)))]
 
-				(get cmd-args "--yml") [
-					(setv data (yaml.load text))]
-
-				(get cmd-args "--kv") [
-					(setv data
-						(dfor kv lines [
-							(get (kv.split "=") 0)
-							(parse-datatype (get (kv.split "=") 1))]))])
-		]
 		(get cmd-args "--env") [
 			;; Get the key-value pairs from shell environment
 			(setv data
 				(dfor evar os.environ
 					:if (.startswith (evar.lower) "j2_")
 					[(get (.split (evar.lower) "j2_") 1)
-					(get os.environ evar)]))
-		]
+					(get os.environ evar)]))]
 
-		(get cmd-args "<key-value-pairs>") [
+		(get cmd-args "<key-value-pairs>")
 			;; Get the key-value pairs from the command line arguments
-			(setv data
-				(dfor kv (get cmd-args "<key-value-pairs>") [
-					(get (kv.split "=") 0)
-					(parse-datatype (get (kv.split "=") 1))]))
-		])
+			(setv data (parse-kv (get cmd-args "<key-value-pairs>"))))
 
 	;; Add terminal color constants for use within templates
 	(setv term-colors
@@ -158,7 +201,7 @@ Notes:
 		(unpack-mapping data)
 		(unpack-mapping term-colors)))
 
-	(j2do template all-data outfile includes)
+	(print (j2do template all-data outfile includes))
 
 	;; Delete the temp file (if it exists)
 	(if (in "tmp_file" (locals))
