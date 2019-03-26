@@ -20,8 +20,10 @@ setup(
 	],
 	packages=['j2do'],
 	package_data={
-		'j2do' : 'j2do.hy',
-		'j2do' : 'term_colors.hy',
+		'j2do' : [
+			'j2do.hy',
+			'term_colors.hy'
+		]
 	},
 	entry_points={
 		'console_scripts' : [
