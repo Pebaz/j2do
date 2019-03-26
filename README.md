@@ -1,83 +1,125 @@
 # J2DO
 
-**Educational project for learning the [Hy](http://docs.hylang.org/en/stable/) language, use [J2CLI](https://github.com/kolypto/j2cli) instead.**
+The point of this project boils down to two things:
 
-*About*
+* [Hy](http://docs.hylang.org/en/stable/) is *amazingly* cool.
+* [Jinja2](<http://jinja.pocoo.org/>) is *beautiful* and *extremely useful*.
 
-Explain about Hy
-Explain about Jinja2
-Explain use case of j2do :D
-Explain use case of JQ
+I want to use Jinja2 from the command line and I'm sure others have wanted the same thing.  Sometimes you just want to write a super simple template really quick and pipe values to it from the command line.  **J2DO** is that tool.  Consequently, [JQ](<https://stedolan.github.io/jq/>) is a fantastic partner to J2Do because you can use it to transform datasets from disparate programs into something that your Jinja2 template can understand.
 
 ## Installation
 
-```sh
+```bash
 pip install git+https://github.com/Pebaz/j2do.git
 ```
 
 ## Usage
 
-Process a given template with command line arguments:
+Example template file `scuttle.j2`:
 
-```bash
-j2do scuttle.j2 name="'Pebaz'" badge_number=24 something-else=abc123
+```jinja2
+{% for i in range(times) %}
+	Hello {{ name }}!
+{% endfor %}
 ```
 
-Process a given template with YAML input:
+Render this template with command line arguments:
+
+```bash
+j2do scuttle.j2 name="'Pebaz'" times=3
+```
+
+Render this template with YAML input:
+
+```json
+{
+	"name" : "Yelbu",
+	"times" : 3
+}
+```
 
 ```sh
 j2do scuttle.j2 --yml answers.yml
 ```
 
-Process a given template with JSON input:
+Render this template with JSON input:
+
+```yaml
+name: "Nodibu"
+times: 3
+```
 
 ```sh
 j2do scuttle.j2 --json answers.json
 ```
 
+Render this template with a text file containing key-value pairs:
+
+```ini
+name="Protodip"
+times=3
+```
+
+```bash
+j2do scuttle.j2 --kv answers.txt
+```
+
 Process a given template with Environment Variable input:
 
 ```sh
-set j2.name="'Pebaz'"
+set j2_name="'Pebaz'"
+set j2_times=3
 j2do scuttle.j2 --env
 ```
 
-Process a given template with STDIN input
+Process a given template with STDIN input:
 
-```sh
-
+```bash
+cat answers.yml | j2do scuttle.j2 --yml -
+cat answers.json | j2do scuttle.j2 --json -
+cat answers.txt | j2do scuttle.j2 --kv -
 ```
 
-Features
+Use JQ along with J2DO:
 
-1. Accept command line input via pipes: `mycommand | j2do mytemplate.j2`
+```json
+{
+	"name" : "Yelbu",
+	"times" : 3,
+	"extra" : "not used"
+}
+```
 
-2. Accept command line input via flag: `j2do mytemplate.j2 -i "this is content that needs to go in"`
+```bash
+cat answers.json | jq "del(.extra)" | j2do scuttle.j2 --json -
+```
 
-3. Accept template files: `.j2`
+Use J2DO as a library:
 
-4. Default behavior output to file: `j2do mytemplate.j2 -i "some content" >> outfile.html`
+```python
+from j2do import j2do
 
-5. Specify output file with flag: `j2do mytemplate.j2 -i "some content" -o outfile.html`
+data = {"name" : "'Pebaz'", "times" : 3}
 
-6. Specify template include dir: `j2do`
+out = j2do(
+    template="mytemplate.j2",	# Template to load
+    data=data,                  # Data to pass to template
+    include=["templates"],		# Where to find templates (accepts list)
+	outfile=None 				# Return text don't output file (defaults to None)
+)
 
-7. Implement as library:
+print(out)
+```
 
-   ```python
-   import j2do 					# J2DO library
-   
-   out = j2do.do(
-       template="mytemplate.j2",	# Template to load
-       include="templates",		# Where to find templates (accepts list)
-   	content="some content", 	# Values to pass to template
-   	outfile=None 				# Return text don't output file (defaults to None)
-   )
-   
-   # Process `out` in some way
-   ```
+### Terminal Coloring Shortcuts
 
-8. Name comes from Linux: sudo
+The template rendering environment comes preloaded with constants you can use to create more attractive terminal output.
+
+```jinja2
+Hello {{_CLRfg}}{{name}}{{_CLRreset}}!
+```
+
+This will output "Hello Pebaz!" to the screen with only the name "Pebaz" highlighted green.  Look into `term_colors.hy` for the list of possible colors.  Foreground and Background colors are supported.
 
 ## Notes
 
@@ -94,3 +136,10 @@ Features
   j2do scuttle.j2 items="[1, 2, 'this is a string']"
   ```
 
+* For another similar project, check out:  [J2CLI](https://github.com/kolypto/j2cli)
+
+* The name `j2do` comes from `sudo` 😉
+
+### TODO
+
+- [ ] Make default syntax: `j2do "inline template" ...` and files: `j2do -f temp.j2 ...`

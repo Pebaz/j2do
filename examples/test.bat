@@ -1,3 +1,6 @@
+:: Main use case - Use j2do from CLI with key-value pairs
+j2do -t "Hello {{name}}!" name="'Pebaz'"
+
 :: Test Key-Value pairs passed directly
 j2do temp.j2 times=3 name="'Pebaz'"
 

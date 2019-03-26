@@ -23,21 +23,6 @@ Notes:
     Please note that environment variable names will be passed to the template
 	with only lowercase letters. This is done to normalize what is passed to
 	the template no matter what the shell decides to do.
-
-
-[✔] Docopt Parser
-[✔] Finalize `name=value` syntax (looping?)
-[✔] Get template string from CLI
-[✔] Use as library
-[✔] Built-in color variables (passed to render func)
-
-[✔] Remove print
-[✔] Verify use as library
-[✔] Document each function
-[ ] Reference Jinja2 documentation
-[ ] Document included colors
-[ ] Setup script
-[ ] Command script .sh: hy j2do.hy %*
 "
 
 (import sys)  ;; Command line arguments
@@ -49,8 +34,8 @@ Notes:
 (import yaml)  ;; YAML Parser
 (import jinja2)  ;; Templating engine
 (import [docopt [docopt]])  ;; CLI Framework
-(import [term-colors [*]])  ;; Terminal colors
-(import [term-colors [__all__ :as all-term-colors]])  ;; Color names
+(import [.term-colors [*]])  ;; Terminal colors
+(import [.term-colors [__all__ :as all-term-colors]])  ;; Color names
 
 
 ;; Make sure that the right script/executable name is showing in the docstring
