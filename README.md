@@ -5,7 +5,7 @@ The point of this project boils down to two things:
 * [Hy](http://docs.hylang.org/en/stable/) is *amazingly* cool.
 * [Jinja2](<http://jinja.pocoo.org/>) is *beautiful* and *extremely useful*.
 
-I want to use Jinja2 from the command line and I'm sure others have wanted the same thing.  Sometimes you just want to write a super simple template really quick and pipe values to it from the command line.  **J2DO** is that tool.  Consequently, [JQ](<https://stedolan.github.io/jq/>) is a fantastic partner to J2Do because you can use it to transform datasets from disparate programs into something that your Jinja2 template can understand.
+I want to use Jinja2 from the command line and I'm sure others have wanted the same thing.  Sometimes you just want to write a super simple template really quick and pipe values to it from the command line.  **J2DO** is that tool.  Now you can use Jinja2 templates inline or from `.j2` files and pipe or pump data to them from the command line.  In addition, [JQ](<https://stedolan.github.io/jq/>) is a fantastic partner to J2Do because you can use it to transform datasets from disparate programs into something that your Jinja2 template can understand.
 
 ## Installation
 
