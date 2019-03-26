@@ -2,7 +2,12 @@
 
 **Educational project for learning the [Hy](http://docs.hylang.org/en/stable/) language, use [J2CLI](https://github.com/kolypto/j2cli) instead.**
 
-*Description of project*
+*About*
+
+Explain about Hy
+Explain about Jinja2
+Explain use case of j2do :D
+Explain use case of JQ
 
 ## Installation
 
