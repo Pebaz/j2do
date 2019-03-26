@@ -11,7 +11,6 @@ setup(
 	description='Use Jinja2 templates from the command line!',
 	author='http://github.com/Pebaz',
 	license='GPL-3.0',
-	packages=find_packages(),
 	install_requires=[
 		'jinja2==2.10',
 		'docopt==0.6.2',
@@ -19,5 +18,14 @@ setup(
 		'pyaml==18.11.0',
 		'colorama==0.4.0'
 	],
-	scripts=['j2do.bat', 'j2do.sh']
+	packages=['j2do'],
+	package_data={
+		'j2do' : 'j2do.hy',
+		'j2do' : 'term_colors.hy',
+	},
+	entry_points={
+		'console_scripts' : [
+			'j2do=j2do'
+		]
+	}
 )
