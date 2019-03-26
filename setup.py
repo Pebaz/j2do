@@ -3,7 +3,7 @@ Usage:
 pip install git+https://github.com/Pebaz/j2do.git
 """
 
-from distutils.core import setup, find_packages
+from setuptools import setup, find_packages
 
 setup(
 	name='j2do',
