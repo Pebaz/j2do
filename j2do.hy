@@ -4,11 +4,11 @@ j2do - Use Jinja2 Templates from the Command Line!
 Usage:
     {0} <template> [--out=<outfile>] [--include=<dir>]... <key-value-pairs>...
     {0} <template> [--out=<outfile>] [--include=<dir>]... (--json | --yml | --kv) [-]
-    {0} <template> [--out=<outfile>] [--include=<dir>]... (--json | --yml) <answer-file>
+    {0} <template> [--out=<outfile>] [--include=<dir>]... (--json | --yml | --kv) <answer-file>
     {0} <template> [--out=<outfile>] [--include=<dir>]... --env
     {0} -t <template-string> [--out=<outfile>] <key-value-pairs>...
     {0} -t <template-string> [--out=<outfile>] (--json | --yml | --kv) [-]
-    {0} -t <template-string> [--out=<outfile>] (--json | --yml) <answer-file>
+    {0} -t <template-string> [--out=<outfile>] (--json | --yml | --kv) <answer-file>
     {0} -t <template-string> [--out=<outfile>] --env
 
 Options:
@@ -34,6 +34,8 @@ Notes:
 
 (import sys)  ;; Command line arguments
 (import os)  ;; Environment variables
+(import json)
+(import yaml)
 (import [tempfile [NamedTemporaryFile :as TmpFile]])
 (import [pathlib [Path]])
 (import [builtins [eval :as parse-datatype]])  ;; Python object from string
@@ -85,19 +87,51 @@ Notes:
 			(setv template tmp-file.name)])
 
 	(setv outfile (get cmd-args "--out"))
+	
 	(setv includes (get cmd-args "--include"))
+	(if (= (len includes) 0)
+		(setv includes ["."]))
 
 	;; Determine where to get the data
 
 	(if (get cmd-args "-") [
 			;; Get data from stdin
+			(setv lines (lfor line sys.stdin (line.strip)))
+			(setv text (.join "\n" lines))
+
+			(if (get cmd-args "--json") [
+					(setv data (json.loads text))]
+
+				(get cmd-args "--yml") [
+					(setv data (yaml.load text))]
+
+				(get cmd-args "--kv") [
+					(setv data
+						(dfor kv lines [
+							(get (kv.split "=") 0)
+							(parse-datatype (get (kv.split "=") 1))]))])
 		]
 		(get cmd-args "<answer-file>") [
 			;; Use the answer file (json, yml)
+			(setv lines
+				(lfor i (.readlines (open (get cmd-args "<answer-file>")))
+					(i.strip)))
+			(setv text (.join "\n" lines))
+
+			(if (get cmd-args "--json") [
+					(setv data (json.loads text))]
+
+				(get cmd-args "--yml") [
+					(setv data (yaml.load text))]
+
+				(get cmd-args "--kv") [
+					(setv data
+						(dfor kv lines [
+							(get (kv.split "=") 0)
+							(parse-datatype (get (kv.split "=") 1))]))])
 		]
 		(get cmd-args "--env") [
 			;; Get the key-value pairs from shell environment
-			;; { i.lower().split('j2_')[1] : os.environ[i] for i in os.environ if i.lower().startswith('j2_') }
 			(setv data
 				(dfor evar os.environ
 					:if (.startswith (evar.lower) "j2_")
@@ -113,17 +147,6 @@ Notes:
 					(parse-datatype (get (kv.split "=") 1))]))
 		])
 
-	(print data)
-	(exit)
-
-	;; ------------>
-	;; Get the key-value pairs from the command line
-	(setv data
-		(dfor arg (cut args 2) [
-			(get (arg.split "=") 0)
-			(parse-datatype (get (arg.split "=") 1))]))
-	;; <-----------
-
 	;; Add terminal color constants for use within templates
 	(setv term-colors
 		(dfor color all-term-colors [
@@ -138,7 +161,7 @@ Notes:
 	(j2do template all-data outfile includes)
 
 	;; Delete the temp file (if it exists)
-	(if tmp-file
+	(if (in "tmp_file" (locals))
 		(.unlink (Path template)))
 
     (return 0))
