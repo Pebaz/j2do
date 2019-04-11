@@ -3,10 +3,11 @@ A collection of constants for use in making the usage of terminal coloring as
 simple as possible.
 "
 
-(import colorama)
+(import colorama sys)
 
 ;; Initialize Colorama to work with Windows
-(colorama.init :convert True)
+(if (= sys.platform "win32")
+	(colorama.init :convert True))
 
 ;; Foreground Colors
 (setv _CLRfbl colorama.Fore.BLACK)
