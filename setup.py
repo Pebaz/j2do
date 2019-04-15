@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 setup(
 	name='j2do',
-	version='0.1',
+	version='0.2',
 	description='Use Jinja2 templates from the command line!',
 	author='http://github.com/Pebaz',
 	license='GPL-3.0',
