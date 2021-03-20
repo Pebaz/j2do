@@ -12,7 +12,7 @@ setup(
 	author='http://github.com/Pebaz',
 	license='GPL-3.0',
 	install_requires=[
-		'jinja2==2.10',
+		'jinja2==2.11.3',
 		'docopt==0.6.2',
 		'hy==0.16.0',
 		'pyaml==18.11.0',
